@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración de Postres - Gelatitinas</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Panel de Administración de Postres</h1>
+        <button id="volver-btn" class="btn">Volver a inicio</button>
+        <div id="admin-message"></div>
+        <table id="desserts-table" class="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Descripción</th>
+                    <th>Rating</th>
+                    <th>Ingredientes</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Postres se cargarán aquí -->
+            </tbody>
+        </table>
+        <h3>Agregar/Editar Postre</h3>
+        <form id="dessert-form">
+            <input type="hidden" id="dessert-id" />
+            <input type="text" id="name" placeholder="Nombre" required />
+            <input type="text" id="category" placeholder="Categoría" required />
+            <input type="number" id="price" placeholder="Precio" step="0.01" required />
+            <input type="text" id="image" placeholder="URL Imagen" required />
+            <textarea id="description" placeholder="Descripción" required></textarea>
+            <input type="number" id="rating" placeholder="Rating" step="0.1" min="0" max="5" />
+            <input type="text" id="ingredients" placeholder="Ingredientes (separados por coma)" />
+            <button type="submit" class="btn">Guardar</button>
+        </form>
+    </div>
+    <script>
+        const token = localStorage.getItem('auth-token');
+        if (!token) window.location.href = 'index.html';
+        document.getElementById('volver-btn').onclick = () => window.location.href = 'home.html';
+        const adminMessage = document.getElementById('admin-message');
+        const dessertsTable = document.getElementById('desserts-table').getElementsByTagName('tbody')[0];
+        const dessertForm = document.getElementById('dessert-form');
+        const dessertIdInput = document.getElementById('dessert-id');
+        const nameInput = document.getElementById('name');
+        const categoryInput = document.getElementById('category');
+        const priceInput = document.getElementById('price');
+        const imageInput = document.getElementById('image');
+        const descriptionInput = document.getElementById('description');
+        const ratingInput = document.getElementById('rating');
+        const ingredientsInput = document.getElementById('ingredients');
+
+        // Función para cargar los postres desde el servidor
+        async function loadDesserts() {
+            dessertsTable.innerHTML = '';
+            const res = await fetch('http://localhost:5000/api/desserts', {
+                headers: { 'auth-token': token }
+            });
+            if (res.ok) {
+                const desserts = await res.json();
+                desserts.forEach(dessert => {
+                    const row = dessertsTable.insertRow();
+                    row.innerHTML = `
+                        <td>${dessert._id}</td>
+                        <td>${dessert.name}</td>
+                        <td>${dessert.category}</td>
+                        <td>$${dessert.price.toFixed(2)}</td>
+                        <td>${dessert.description}</td>
+                        <td>${dessert.rating || ''}</td>
+                        <td>${dessert.ingredients ? dessert.ingredients.join(', ') : ''}</td>
+                        <td>
+                            <button onclick="editDessert('${dessert._id}')">Editar</button>
+                            <button onclick="deleteDessert('${dessert._id}')">Eliminar</button>
+                        </td>
+                    `;
+                });
+            } else {
+                adminMessage.textContent = 'No se pudieron cargar los postres';
+            }
+        }
+
+        // Función para editar un postre
+        window.editDessert = async function(id) {
+            const res = await fetch(`http://localhost:5000/api/desserts/${id}`, {
+                headers: { 'auth-token': token }
+            });
+            if (res.ok) {
+                const dessert = await res.json();
+                dessertIdInput.value = dessert._id;
+                nameInput.value = dessert.name;
+                categoryInput.value = dessert.category;
+                priceInput.value = dessert.price;
+                imageInput.value = dessert.image;
+                descriptionInput.value = dessert.description;
+                ratingInput.value = dessert.rating || '';
+                ingredientsInput.value = dessert.ingredients ? dessert.ingredients.join(', ') : '';
+            }
+        }
+
+        // Función para eliminar un postre
+        window.deleteDessert = async function(id) {
+            if (!confirm('¿Seguro que deseas eliminar este postre?')) return;
+            const res = await fetch(`http://localhost:5000/api/desserts/${id}`, {
+                method: 'DELETE',
+                headers: { 'auth-token': token }
+            });
+            if (res.ok) {
+                adminMessage.textContent = 'Postre eliminado';
+                loadDesserts();
+            } else {
+                adminMessage.textContent = 'No se pudo eliminar el postre';
+            }
+        }
+
+        // Función para guardar un postre (nuevo o editado)
+        dessertForm.onsubmit = async function(e) {
+            e.preventDefault();
+            const id = dessertIdInput.value;
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `http://localhost:5000/api/desserts/${id}` : 'http://localhost:5000/api/desserts';
+            const body = {
+                name: nameInput.value,
+                category: categoryInput.value,
+                price: parseFloat(priceInput.value),
+                image: imageInput.value,
+                description: descriptionInput.value,
+                rating: ratingInput.value ? parseFloat(ratingInput.value) : undefined,
+                ingredients: ingredientsInput.value ? ingredientsInput.value.split(',').map(i => i.trim()) : []
+            };
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': token
+                },
+                body: JSON.stringify(body)
+            });
+            if (res.ok) {
+                adminMessage.textContent = id ? 'Postre actualizado' : 'Postre creado';
+                dessertForm.reset();
+                dessertIdInput.value = '';
+                loadDesserts();
+            } else {
+                adminMessage.textContent = 'Error al guardar el postre';
+            }
+        }
+
+        loadDesserts();
+    </script>
+</body>
+</html>

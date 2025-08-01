@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <h2>Registro</h2>
+  <form id="registerForm">
+    <input type="text" name="username" placeholder="Usuario" required />
+    <input type="text" name="email" placeholder="Email" required />
+    <input type="password" name="password" placeholder="Contraseña" required />
+    <input type="hidden" name="role" value="usuario" />
+    <button type="submit">Registrarse</button>
+  </form>
+  <p><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></p>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: e.target.username.value,
+          email: e.target.email.value,
+          password: e.target.password.value,
+        }),
+      });
+
+      // Manejar la respuesta del servidor
+      if (res.status === 201) {
+        // Convertir la respuesta a JSON
+        const data = await res.json();
+        
+        // Mostrar mensaje de éxito
+        alert(data.message);
+        
+        // Guardar el token y datos del usuario en localStorage
+        localStorage.setItem('auth-token', data.token);
+        localStorage.setItem('userId', data.userId);
+        
+        // Redirigir a la página de inicio de sesión
+        window.location.href = "index.html";
+      } else {
+        // Si hay un error, mostrar el mensaje de error
+        const errorMsg = await res.text();
+        alert(errorMsg);
+      }
+    });
+  </script>
+</body>
+</html>

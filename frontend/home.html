@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inicio - Gelatitinas</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styleCatalago.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Bienvenido a Gelatitinas</h1>
+    <p>Has iniciado sesión correctamente, <span id="username">Usuario</span>.</p>
+
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">🍰 Dulce Catálogo</h1>
+        <div class="actions">
+          <button id="logout-btn" class="btn">Cerrar sesión</button>
+          <button id="admin-panel-btn" class="btn" style="display:none;">Panel de Admin</button>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <div class="container main-content">
+    <div class="content-wrapper">
+      <div class="main-section">
+        <!-- Search and Filters -->
+        <div class="search-filters">
+          <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar postres..." class="search-input" />
+          </div>
+
+          <div class="category-filters" id="categoryFilters">
+            <button class="filter-btn active" data-category="todos">Todos</button>
+            <button class="filter-btn" data-category="tartas">Tartas</button>
+            <button class="filter-btn" data-category="helados">Helados</button>
+            <button class="filter-btn" data-category="pasteles">Pasteles</button>
+            <button class="filter-btn" data-category="postres">Postres</button>
+          </div>
+        </div>
+
+        <div class="results-count">
+          <p id="resultsText">Cargando postres...</p>
+        </div>
+
+        <div class="desserts-grid" id="dessertsGrid"></div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+          <p>No se encontraron postres que coincidan con tu búsqueda.</p>
+        </div>
+      </div>
+
+      <div class="cart-sidebar" id="cartSidebar">
+        <h2>Carrito de Compras</h2>
+        <div class="cart-items" id="cartItems">
+          <p class="empty-cart">Tu carrito está vacío</p>
+        </div>
+        <div class="cart-total" id="cartTotal" style="display: none;">
+          <div class="total-line">
+            <span>Total:</span>
+            <span class="total-price" id="totalPrice">$0.00</span>
+          </div>
+          <button class="checkout-btn">Proceder al Pago</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript para autenticación y cargar postres -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('auth-token');
+      const username = localStorage.getItem('username');
+
+      if (!token) return window.location.href = 'index.html';
+      if (username) document.getElementById('username').textContent = username;
+
+      // Mostrar botón de admin si el token lo indica
+      function parseJwt(token) {
+        try {
+          return JSON.parse(atob(token.split('.')[1]));
+        } catch (e) {
+          return null;
+        }
+      }
+
+      const payload = parseJwt(token);
+      if (payload?.role === 'admin') {
+        document.getElementById('admin-panel-btn').style.display = 'inline-block';
+      }
+
+      document.getElementById('admin-panel-btn').addEventListener('click', () => {
+        window.location.href = 'adminPostres.html';
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = 'index.html';
+      });
+
+      // Obtener y mostrar postres
+      const dessertsGrid = document.getElementById("dessertsGrid"); // Contenedor de los postres
+      const noResults = document.getElementById("noResults"); // Mensaje de "No se encontraron postres"
+      const searchInput = document.getElementById("searchInput"); // Input de búsqueda
+      const resultsText = document.getElementById("resultsText"); // Texto que muestra la cantidad de postres encontrados
+      let postres = []; // Arreglo para almacenar los postres obtenidos del servidor
+
+      // Función para cargar los postres desde el servidor
+      async function obtenerPostres() {
+        try {
+          const res = await fetch("http://localhost:5000/api/desserts", {
+            headers: {
+              "Content-Type": "application/json",
+              "auth-token": token
+            }
+          });
+          if (!res.ok) throw new Error("Error al obtener postres");
+
+          postres = await res.json();
+          renderPostres("todos");
+        } catch (error) {
+          dessertsGrid.innerHTML = `<p style="color:red;">${error.message}</p>`;
+          resultsText.textContent = "No se pudieron cargar los postres.";
+        }
+      }
+
+      // Función para renderizar los postres en la página
+      function renderPostres(categoria = "todos", texto = "") {
+        const filtrados = postres.filter(p =>
+          (categoria === "todos" || p.category === categoria) &&
+          p.name.toLowerCase().includes(texto.toLowerCase())
+        );
+
+        // Limpiar la cuadrícula previa y mostrar los resultados
+        dessertsGrid.innerHTML = "";
+        resultsText.textContent = `Mostrando ${filtrados.length} de ${postres.length} postres`;
+        noResults.style.display = filtrados.length === 0 ? "block" : "none";
+
+        // Crear y agregar las tarjetas de los postres
+        filtrados.forEach(p => {
+          const card = document.createElement("div");
+          card.className = "dessert-card";
+          card.innerHTML = `
+            <img src="${p.image}" alt="${p.name}" />
+            <h3>${p.name}</h3>
+            <p>${p.description}</p>
+            <p><strong>Categoría:</strong> ${p.category}</p>
+            <p><strong>Precio:</strong> $${p.price}</p>
+            <button class="add-to-cart-btn">Agregar al carrito</button>
+          `;
+          dessertsGrid.appendChild(card);
+        });
+      } 
+
+      // Filtros por categoría
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderPostres(btn.dataset.category, searchInput.value);
+        });
+      });
+
+      // Búsqueda en tiempo real
+      searchInput.addEventListener("input", () => {
+        const categoria = document.querySelector(".filter-btn.active").dataset.category;
+        renderPostres(categoria, searchInput.value);
+      });
+
+      obtenerPostres(); // Cargar los postres al cargar la página
+    });
+  </script>
+</body>
+</html>
