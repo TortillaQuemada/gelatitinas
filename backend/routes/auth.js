@@ -59,12 +59,13 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     // Validar que los campos no estén vacíos
-    if (!req.body.username || !req.body.password) {
+    if (!req.body.email || !req.body.password) {
       return res.status(400).json("Por favor, complete todos los campos.");
     }
-    // Buscar el usuario en la base de datos
-    const user = await User.findOne({ username: req.body.username });
-    if (!user) return res.status(400).json("Usuario no encontrado");
+
+    // Buscar el usuario en la base de datos por correo
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(400).json("Correo no registrado");
 
     // Comparar la contraseña ingresada con la almacenada en la base de datos
     const validPass = await bcrypt.compare(req.body.password, user.password);
@@ -72,21 +73,23 @@ router.post("/login", async (req, res) => {
 
     // Si las credenciales son correctas, generar un token JWT
     const token = jwt.sign(
-      { id: user._id, username: user.username, role: user.role }, // Incluye el rol en el token
-      process.env.JWT_SECRET, // Clave secreta para firmar el token
-      { expiresIn: "1h" } // Opciones: el token expira en 1 hora
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
     );
-    
+
     // Responder con el token y datos del usuario
     res.status(200).json({
       message: "Inicio de sesión exitoso",
       token: token,
       userId: user._id,
-      username: user.username
+      email: user.email,
+      username: user.username // puedes incluir otros datos si quieres
     });
   } catch (err) {
     res.status(500).json(err);
   }
 });
+
 
 module.exports = router;

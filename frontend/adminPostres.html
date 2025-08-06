@@ -14,7 +14,7 @@
         <table id="desserts-table" class="users-table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Precio</th>
@@ -68,7 +68,7 @@
                 desserts.forEach(dessert => {
                     const row = dessertsTable.insertRow();
                     row.innerHTML = `
-                        <td>${dessert._id}</td>
+                        
                         <td>${dessert.name}</td>
                         <td>${dessert.category}</td>
                         <td>$${dessert.price.toFixed(2)}</td>
