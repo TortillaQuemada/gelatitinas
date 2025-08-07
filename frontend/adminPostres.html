@@ -14,7 +14,6 @@
         <table id="desserts-table" class="users-table">
             <thead>
                 <tr>
-                    
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Precio</th>
@@ -28,11 +27,21 @@
                 <!-- Postres se cargarán aquí -->
             </tbody>
         </table>
+
         <h3>Agregar/Editar Postre</h3>
         <form id="dessert-form">
             <input type="hidden" id="dessert-id" />
             <input type="text" id="name" placeholder="Nombre" required />
-            <input type="text" id="category" placeholder="Categoría" required />
+
+            <select id="category" required>
+                <option value="" disabled selected>Selecciona una categoría</option>
+                <option value="Gelatina">Gelatina</option>
+                <option value="Pastel">Pastel</option>
+                <option value="Flan">Flan</option>
+                <option value="Helado">Helado</option>
+                <option value="Pay">Pay</option>
+            </select>
+
             <input type="number" id="price" placeholder="Precio" step="0.01" required />
             <input type="text" id="image" placeholder="URL Imagen" required />
             <textarea id="description" placeholder="Descripción" required></textarea>
@@ -41,10 +50,12 @@
             <button type="submit" class="btn">Guardar</button>
         </form>
     </div>
+
     <script>
         const token = localStorage.getItem('auth-token');
         if (!token) window.location.href = 'index.html';
         document.getElementById('volver-btn').onclick = () => window.location.href = 'home.html';
+
         const adminMessage = document.getElementById('admin-message');
         const dessertsTable = document.getElementById('desserts-table').getElementsByTagName('tbody')[0];
         const dessertForm = document.getElementById('dessert-form');
@@ -68,7 +79,6 @@
                 desserts.forEach(dessert => {
                     const row = dessertsTable.insertRow();
                     row.innerHTML = `
-                        
                         <td>${dessert.name}</td>
                         <td>${dessert.category}</td>
                         <td>$${dessert.price.toFixed(2)}</td>
