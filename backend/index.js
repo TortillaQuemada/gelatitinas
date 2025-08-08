@@ -12,7 +12,7 @@ const adminRoutes = require("./routes/admin.js"); // Importar rutas de admin
 const connection = require('./config/db.js'); // Importar la función de conexión a la base de datos
 connection();
 const app = express();
-const dessertsRoutes = require('./routes/desserts');
+const dessertsRoutes = require('./routes/desserts.js');
 
 app.use(cors()); // Permitir solicitudes desde otros dominios
 app.use(express.json()); // Parsear solicitudes JSON
