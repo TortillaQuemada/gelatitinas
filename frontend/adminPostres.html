@@ -71,7 +71,7 @@
         // Función para cargar los postres desde el servidor
         async function loadDesserts() {
             dessertsTable.innerHTML = '';
-            const res = await fetch('https://gelatitinas.vercel.app/api/desserts', {
+            const res = await fetch('https://gelatitinas-back.vercel.app/api/desserts', {
                 headers: { 'auth-token': token }
             });
             if (res.ok) {
@@ -98,7 +98,7 @@
 
         // Función para editar un postre
         window.editDessert = async function(id) {
-            const res = await fetch(`https://gelatitinas.vercel.app/api/desserts/${id}`, {
+            const res = await fetch(`https://gelatitinas-back.vercel.app/api/desserts/${id}`, {
                 headers: { 'auth-token': token }
             });
             if (res.ok) {
@@ -117,7 +117,7 @@
         // Función para eliminar un postre
         window.deleteDessert = async function(id) {
             if (!confirm('¿Seguro que deseas eliminar este postre?')) return;
-            const res = await fetch(`https://gelatitinas.vercel.app/api/desserts/${id}`, {
+            const res = await fetch(`https://gelatitinas-back.vercel.app/api/desserts/${id}`, {
                 method: 'DELETE',
                 headers: { 'auth-token': token }
             });
@@ -134,7 +134,7 @@
             e.preventDefault();
             const id = dessertIdInput.value;
             const method = id ? 'PUT' : 'POST';
-            const url = id ? `https://gelatitinas.vercel.app/desserts/${id}` : 'https://gelatitinas.vercel.app/api/desserts';
+            const url = id ? `https://gelatitinas-back.vercel.app/api/desserts/${id}` : 'https://gelatitinas-back.vercel.app/api/desserts';
             const body = {
                 name: nameInput.value,
                 category: categoryInput.value,
