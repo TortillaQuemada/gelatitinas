@@ -6,13 +6,18 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h2>Iniciar Sesión</h2>
   <form id="loginForm">
+    <header class="head-form">
+      <h2>Iniciar Sesion</h2>
+      <p>Inicie sesión aquí usando su nombre de usuario y contraseña</p>
+   </header>
     <input type="email" name="email" placeholder="Correo electrónico" required />
     <input type="password" name="password" placeholder="Contraseña" required />
     <button type="submit">Ingresar</button>
+
+    <p><a href="register.html">¿No tienes cuenta? Regístrate</a></p>
   </form>
-  <p><a href="register.html">¿No tienes cuenta? Regístrate</a></p>
+  
 
   <script>
     document.getElementById("loginForm").addEventListener("submit", async (e) => {

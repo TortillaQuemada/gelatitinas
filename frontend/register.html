@@ -6,15 +6,21 @@
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <h2>Registro</h2>
+
   <form id="registerForm">
+    <header class="head-form">
+      <h2>Registrate</h2>
+      <p>¿Aún no te has registrado? Registrate para iniciar sesion </p>
+   </header>
     <input type="text" name="username" placeholder="Usuario" required />
     <input type="text" name="email" placeholder="Email" required />
     <input type="password" name="password" placeholder="Contraseña" required />
     <input type="hidden" name="role" value="usuario" />
     <button type="submit">Registrarse</button>
+
+    <p><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></p>
   </form>
-  <p><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></p>
+  
 
   <script>
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
