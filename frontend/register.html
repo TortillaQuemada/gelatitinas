@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <form id="registerForm">
     <header class="head-form">
       <h2>Registrate</h2>
       <p>¿Aún no te has registrado? Registrate para iniciar sesion </p>
-   </header>
+    </header>
     <input type="text" name="username" placeholder="Usuario" required />
     <input type="text" name="email" placeholder="Email" required />
     <input type="password" name="password" placeholder="Contraseña" required />
-    <input type ="checkbox" name="terms" required /> Acepto los términos y condiciones
-    <input type="hidden" name="role" value="usuario" />
+    <label class="checkbox-wrapper">
+      <input type="checkbox" id="terminosCheckbox">
+      <span class="checkmark-circle"></span>
+      <span class="text-content">
+        Acepto los <a href="terminos.html" target="_blank">términos y condiciones</a>
+      </span>
+    </label>
+
+    <script>
+      // Opcional: Validar que esté marcado antes de continuar
+      document.getElementById('terminosCheckbox').addEventListener('change', function () {
+        if (this.checked) {
+          console.log('Usuario aceptó los términos');
+          // Aquí puedes habilitar un botón de continuar, por ejemplo
+        }
+      });
+    </script>
+
     <button type="submit">Registrarse</button>
 
     <p><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></p>
   </form>
-  
+
 
   <script>
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
@@ -41,14 +59,14 @@
       if (res.status === 201) {
         // Convertir la respuesta a JSON
         const data = await res.json();
-        
+
         // Mostrar mensaje de éxito
         alert(data.message);
-        
+
         // Guardar el token y datos del usuario en localStorage
         localStorage.setItem('auth-token', data.token);
         localStorage.setItem('userId', data.userId);
-        
+
         // Redirigir a la página de inicio de sesión
         window.location.href = "index.html";
       } else {
@@ -59,4 +77,5 @@
     });
   </script>
 </body>
+
 </html>
