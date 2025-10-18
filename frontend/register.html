@@ -1,50 +1,122 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .checkbox-wrapper {
+      display: block;
+      position: relative;
+      padding-left: 40px;
+      margin: 15px 0;
+      cursor: pointer;
+      font-size: 14px;
+      user-select: none;
+      color: #333;
+    }
 
+    .checkbox-wrapper input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper .checkmark-circle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: #fff;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .checkbox-wrapper:hover input ~ .checkmark-circle {
+      border-color: #764ba2;
+      box-shadow: 0 0 0 8px rgba(118, 75, 162, 0.1);
+    }
+
+    .checkbox-wrapper input:checked ~ .checkmark-circle {
+      background-color: #764ba2;
+      border-color: #764ba2;
+      animation: ripple 0.6s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.4);
+      }
+      100% {
+        box-shadow: 0 0 0 15px rgba(118, 75, 162, 0);
+      }
+    }
+
+    .checkbox-wrapper .checkmark-circle:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: 6px;
+      top: 3px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .checkbox-wrapper input:checked ~ .checkmark-circle:after {
+      display: block;
+    }
+
+    .checkbox-wrapper a {
+      color: #764ba2;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .checkbox-wrapper a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
 <body>
 
   <form id="registerForm">
     <header class="head-form">
       <h2>Registrate</h2>
       <p>¿Aún no te has registrado? Registrate para iniciar sesion </p>
-    </header>
+   </header>
     <input type="text" name="username" placeholder="Usuario" required />
     <input type="text" name="email" placeholder="Email" required />
     <input type="password" name="password" placeholder="Contraseña" required />
+    
     <label class="checkbox-wrapper">
-      <input type="checkbox" id="terminosCheckbox">
+      <input type="checkbox" id="terminosCheckbox" required>
       <span class="checkmark-circle"></span>
-      <span class="text-content">
-        Acepto los <a href="terminos.html" target="_blank">términos y condiciones</a>
-      </span>
+      <span>Acepto los <a href="terminos.html" target="_blank">términos y condiciones</a></span>
     </label>
-
-    <script>
-      // Opcional: Validar que esté marcado antes de continuar
-      document.getElementById('terminosCheckbox').addEventListener('change', function () {
-        if (this.checked) {
-          console.log('Usuario aceptó los términos');
-          // Aquí puedes habilitar un botón de continuar, por ejemplo
-        }
-      });
-    </script>
 
     <button type="submit">Registrarse</button>
 
     <p><a href="index.html">¿Ya tienes cuenta? Inicia sesión</a></p>
   </form>
-
+  
 
   <script>
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // Validar que el checkbox esté marcado
+      const terminosCheckbox = document.getElementById("terminosCheckbox");
+      if (!terminosCheckbox.checked) {
+        alert("Debes aceptar los términos y condiciones para registrarte");
+        return;
+      }
+
       const res = await fetch("https://gelatitinas-back.vercel.app/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,14 +131,14 @@
       if (res.status === 201) {
         // Convertir la respuesta a JSON
         const data = await res.json();
-
+        
         // Mostrar mensaje de éxito
         alert(data.message);
-
+        
         // Guardar el token y datos del usuario en localStorage
         localStorage.setItem('auth-token', data.token);
         localStorage.setItem('userId', data.userId);
-
+        
         // Redirigir a la página de inicio de sesión
         window.location.href = "index.html";
       } else {
@@ -77,5 +149,4 @@
     });
   </script>
 </body>
-
 </html>
