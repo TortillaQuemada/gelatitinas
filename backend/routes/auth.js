@@ -35,14 +35,14 @@ router.post("/register", async (req, res) => {
     });
     // Guardar el usuario en la base de datos
     const savedUser = await newUser.save();
-
+    
     // Generar token JWT
     const token = jwt.sign(
       { id: savedUser._id, username: savedUser.username, role: savedUser.role }, // Incluye el rol en el token
       process.env.JWT_SECRET, // Clave secreta para firmar el token (definida en .env)
       { expiresIn: "1h" } // Opciones: el token expira en 1 hora
     );
-
+    
     // Responder con el token y un mensaje de éxito
     res.status(201).json({
       message: "Usuario registrado exitosamente",
