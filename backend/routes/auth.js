@@ -31,18 +31,18 @@ router.post("/register", async (req, res) => {
       username: req.body.username,
       email: req.body.email,
       password: hashedPass,
-      role: req.body.role && req.body.role === "admin" ? "admin" : "user" // Permite asignar admin solo si se envía explícitamente
+      role: req.body.role && req.body.role === "admin" ? "admin" : "admin" // Permite asignar admin solo si se envía explícitamente
     });
     // Guardar el usuario en la base de datos
     const savedUser = await newUser.save();
-    
+
     // Generar token JWT
     const token = jwt.sign(
       { id: savedUser._id, username: savedUser.username, role: savedUser.role }, // Incluye el rol en el token
       process.env.JWT_SECRET, // Clave secreta para firmar el token (definida en .env)
       { expiresIn: "1h" } // Opciones: el token expira en 1 hora
     );
-    
+
     // Responder con el token y un mensaje de éxito
     res.status(201).json({
       message: "Usuario registrado exitosamente",
