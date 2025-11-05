@@ -31,7 +31,7 @@ router.post("/register", async (req, res) => {
       username: req.body.username,
       email: req.body.email,
       password: hashedPass,
-      role: req.body.role && req.body.role === "user" ? "user" : "admin" // Permite asignar admin solo si se envía explícitamente
+      role: req.body.role && req.body.role === "admin" ? "admin" : "user" // Permite asignar admin solo si se envía explícitamente
     });
     // Guardar el usuario en la base de datos
     const savedUser = await newUser.save();
