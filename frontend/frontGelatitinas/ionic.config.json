@@ -1,0 +1,7 @@
+{
+  "name": "frontGelatitinas",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
